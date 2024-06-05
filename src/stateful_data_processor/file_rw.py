@@ -1,7 +1,6 @@
 from abc import abstractmethod
-from logging import Logger
+from logging import Logger, getLogger
 from typing import Dict, Optional
-from Trading.utils.custom_logging import get_logger
 import os
 import json
 
@@ -9,7 +8,7 @@ class FileRW:
     def __init__(self, file_name: str, logger: Optional[Logger]=None) -> None:
         self.file_name = file_name
         if logger is None:
-            self.logger = get_logger("FileRW")
+            self.logger = getLogger("FileRW")
         else:
             self.logger = logger
 
