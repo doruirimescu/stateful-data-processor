@@ -34,8 +34,16 @@ stateful-data-processor
 =======================
 
 
-    Utility to process data incrementally and save the state to a file.
+**stateful-data-processor** is a utility designed to handle large amounts of data incrementally. It allows you to process data step-by-step, saving progress to avoid data loss in case of interruptions or errors. The processor can be subclassed to implement custom data processing logic.
 
+Features
+--------
+
+- Incrementally process large datasets.
+- Save the processing state to a file.
+- Resume the processing state and skip already processed items automatically 
+- Handle SIGINT and SIGTERM signals for graceful shutdown and state saving.
+- Easily subclass to implement custom data processing.
 
 Problem: let's say you have a large amount of data, that you want to loop through and process incrementally.
 Processing takes time, and in case an error occurs, you do not want to lose all the progress.
