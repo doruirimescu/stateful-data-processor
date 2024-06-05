@@ -55,6 +55,8 @@ StatefulDataProcessor class to process data incrementally.
     
     The process_item method should be implemented to process a single item, if iterate_items is used.
 
+    The data needs to be stored in a dictionary, using unique labels. Each label corresponds to one item.
+
 
 .. _pyscaffold-notes:
 
