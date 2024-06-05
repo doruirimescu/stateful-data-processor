@@ -1,14 +1,16 @@
-import unittest
-from typing import List, Any
-import os
+import logging
 import multiprocessing
-from pathlib import Path
+import os
 import time
-from stateful_data_processor.processor import StatefulDataProcessor
-from stateful_data_processor.file_rw import JsonFileRW
+import unittest
+from typing import Any, List
 from unittest.mock import MagicMock, call
 
-import logging
+from stateful_data_processor.file_rw import JsonFileRW
+from stateful_data_processor.processor import StatefulDataProcessor
+from utils import TEST_FILE_JSON_PATH, wait_for_file
+
+
 class QueueHandler(logging.Handler):
     """
     This is a logging handler which sends log messages to a multiprocessing queue.
@@ -22,19 +24,6 @@ class QueueHandler(logging.Handler):
             self.log_queue.put(self.format(record))
         except Exception:
             self.handleError(record)
-
-
-CURRENT_FILE_PATH = Path(__file__).parent
-FILE_JSON_PATH = CURRENT_FILE_PATH / "test.json"
-
-def wait_for_file(file_path: str):
-    n_retries = 10
-    for _ in range(n_retries):
-        if os.path.exists(file_path):
-            break
-        time.sleep(0.25)
-    else:
-        raise Exception(f"File {file_path} does not exist.")
 
 class SymbolGetter:
     """
@@ -61,13 +50,13 @@ class SymbolProcessor(StatefulDataProcessor):
 
 class TestStatefulDataProcessor(unittest.TestCase):
     def setUp(self):
-        self.file_rw = JsonFileRW(FILE_JSON_PATH)
+        self.file_rw = JsonFileRW(TEST_FILE_JSON_PATH)
         self.mock_logger = MagicMock()
 
     def tearDown(self) -> None:
         self.mock_logger.reset_mock()
-        if os.path.exists(FILE_JSON_PATH):
-            os.remove(FILE_JSON_PATH)
+        if os.path.exists(TEST_FILE_JSON_PATH):
+            os.remove(TEST_FILE_JSON_PATH)
         del self.file_rw
 
     def test_process_data(self):
@@ -84,7 +73,7 @@ class TestStatefulDataProcessor(unittest.TestCase):
             call("Finished processing all items."),
         ]
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
-        wait_for_file(FILE_JSON_PATH)
+        wait_for_file(TEST_FILE_JSON_PATH)
 
     def test_processes_data_and_retrieves_completed_state_after_deletion(self):
         processor = SymbolProcessor(
@@ -92,11 +81,11 @@ class TestStatefulDataProcessor(unittest.TestCase):
         )
         processor.run(symbol_getter=SymbolGetter(), delay=0)
 
-        wait_for_file(FILE_JSON_PATH)
+        wait_for_file(TEST_FILE_JSON_PATH)
         del processor
 
         processor = SymbolProcessor(self.file_rw, should_read=True, logger=self.mock_logger)
-        calls = [call(f"Read from file: {FILE_JSON_PATH} data of len 3")]
+        calls = [call(f"Read from file: {TEST_FILE_JSON_PATH} data of len 3")]
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
         self.assertEqual(processor.data, {"a": "a!", "b": "b!", "c": "c!"})
 
@@ -134,7 +123,7 @@ class TestStatefulDataProcessor(unittest.TestCase):
         time.sleep(0.5)
         p.terminate()
 
-        wait_for_file(FILE_JSON_PATH)
+        wait_for_file(TEST_FILE_JSON_PATH)
 
         self.assertEqual(self.file_rw.read(), {"a": "a!"})
 
