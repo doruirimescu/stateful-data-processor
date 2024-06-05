@@ -52,11 +52,16 @@ class StatefulDataProcessor:
 
     @abstractmethod
     def process_data(self, *args, **kwargs):
-        """Template method for processing data. Get data, and call iterate_items"""
+        """Template method for processing data. Get data, and call iterate_items.
+        Arguments are forwarded to iterate_items."""
         ...
 
     def iterate_items(self, items, *args, **kwargs):
-        """General iteration method for processing items."""
+        """General iteration method for processing items. This should be called from process_data.
+        This method will iterate through the items and call process_item for each item.
+        If an item is already processed, it will skip it.
+        Arguments are forwarded to process_item."""
+
         items_len = len(items)
         if len(self.data) == items_len:
             self.logger.info("All items already processed, skipping...")
