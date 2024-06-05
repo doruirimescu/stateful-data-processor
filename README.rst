@@ -49,13 +49,15 @@ StatefulDataProcessor class to process data incrementally.
 
     The data is stored in a dictionary and the processor keeps track of the current step being processed.
 
-    The processor can be interrupted with a SIGINT signal and the data will be saved to the file.
+    The processor can be interrupted with a SIGINT or SIGTERM signal and the data will be saved to the file.
     
     The processor is meant to be subclassed and the process_data method should be implemented.
     
     The process_item method should be implemented to process a single item, if iterate_items is used.
 
     The data needs to be stored in a dictionary, using unique labels. Each label corresponds to one item.
+
+    The process_item method should be implemented to process a single item, if iterate_items is used.
 
 
 .. _pyscaffold-notes:
