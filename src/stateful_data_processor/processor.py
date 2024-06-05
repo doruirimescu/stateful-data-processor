@@ -1,8 +1,8 @@
 from abc import abstractmethod
-from logging import Logger
+from logging import Logger, getLogger
 import signal
 from stateful_data_processor.file_rw import FileRW
-from typing import Optional
+from typing import Optional, Any
 
 
 """
@@ -16,7 +16,7 @@ You want to be able to iterate through items and process them one by one.
 StatefulDataProcessor class to process data incrementally.
     Process large amounts of data in a JSON file incrementally.
     The data is stored in a dictionary and the processor keeps track of the current step being processed.
-    The processor can be interrupted with a SIGINT signal and the data will be saved to the file.
+    The processor can be interrupted with a SIGINT or SIGTERM signal and the data will be saved to the file.
     The processor is meant to be subclassed and the process_data method should be implemented.
     The process_item method should be implemented to process a single item, if iterate_items is used.
 """
@@ -24,10 +24,13 @@ StatefulDataProcessor class to process data incrementally.
 
 class StatefulDataProcessor:
     def __init__(
-        self, file_rw: FileRW, logger: Logger, should_read: Optional[bool] = True
+        self, file_rw: FileRW, logger: Optional[Logger]=None, should_read: Optional[bool] = True
     ):
         self.file_rw = file_rw
-        self.logger = logger
+        if logger is None:
+            self.logger = getLogger("StatefulDataProcessor")
+        else:
+            self.logger = logger
 
         if should_read:
             try:
@@ -45,10 +48,11 @@ class StatefulDataProcessor:
 
         # Setup the signal handler for graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
 
     @abstractmethod
     def process_data(self, *args, **kwargs):
-        """Template method for processing data."""
+        """Template method for processing data. Get data, and call iterate_items"""
         ...
 
     def iterate_items(self, items, *args, **kwargs):
@@ -68,7 +72,7 @@ class StatefulDataProcessor:
         self.logger.info("Finished processing all items.")
 
     @abstractmethod
-    def process_item(self, item, *args, **kwargs):
+    def process_item(self, item: Any, *args: Any, **kwargs: Any) -> Any:
         """Process a single item."""
         pass
 
