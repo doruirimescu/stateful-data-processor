@@ -59,6 +59,14 @@ StatefulDataProcessor class to process data incrementally.
 
     The process_item method should be implemented to process a single item, if iterate_items is used.
 
+Installation
+------------
+
+You can install **stateful-data-processor** using pip:
+
+.. code-block:: bash
+
+    pip install stateful-data-processor
 
 .. _pyscaffold-notes:
 
