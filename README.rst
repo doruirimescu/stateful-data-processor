@@ -46,9 +46,13 @@ You want to be able to iterate through items and process them one by one.
 
 StatefulDataProcessor class to process data incrementally.
     Process large amounts of data in a JSON file incrementally.
+
     The data is stored in a dictionary and the processor keeps track of the current step being processed.
+
     The processor can be interrupted with a SIGINT signal and the data will be saved to the file.
+    
     The processor is meant to be subclassed and the process_data method should be implemented.
+    
     The process_item method should be implemented to process a single item, if iterate_items is used.
 
 
