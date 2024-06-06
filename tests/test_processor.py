@@ -38,10 +38,6 @@ class SymbolProcessor(StatefulDataProcessor):
     """
     This class processes a list of symbols.
     """
-    def process_data(self, symbol_getter: SymbolGetter, delay: float = 0.0):
-        symbols = symbol_getter.get_symbols()
-        self._iterate_items(symbols, delay)
-
     def process_item(self, item: str, delay=0.0, *args: Any, **kwargs: Any) -> None:
         processed = item + "!"
         self.data[item] = processed
@@ -63,7 +59,7 @@ class TestStatefulDataProcessor(unittest.TestCase):
         processor = SymbolProcessor(
             self.file_rw, should_read=False, logger=self.mock_logger
         )
-        processor.run(symbol_getter=SymbolGetter(), delay=0)
+        processor.run(items=["a", "b", "c"], delay=0)
         self.assertEqual(processor.data, {"a": "a!", "b": "b!", "c": "c!"})
 
         calls = [
@@ -79,7 +75,7 @@ class TestStatefulDataProcessor(unittest.TestCase):
         processor = SymbolProcessor(
             self.file_rw, should_read=False
         )
-        processor.run(symbol_getter=SymbolGetter(), delay=0)
+        processor.run(items=["a", "b", "c"], delay=0)
 
         wait_for_file(TEST_FILE_JSON_PATH)
         del processor
@@ -95,10 +91,10 @@ class TestStatefulDataProcessor(unittest.TestCase):
 
     def test_skip_already_processed_items(self):
         processor = SymbolProcessor(self.file_rw, should_read=False, logger=self.mock_logger)
-        processor.run(symbol_getter=SymbolGetter(), delay=0)
+        processor.run(items=["a", "b", "c"], delay=0)
         self.assertEqual(processor.data, {"a": "a!", "b": "b!", "c": "c!"})
 
-        processor.run(symbol_getter=SymbolGetter(), delay=0)
+        processor.run(items=["a", "b", "c"], delay=0)
         calls = [call("All items already processed, skipping...")]
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
 
@@ -116,7 +112,7 @@ class TestStatefulDataProcessor(unittest.TestCase):
 
         # Add a large enough delay to ensure the process is terminated before it processes another item
 
-        p = multiprocessing.Process(target=symbol_processor.run, kwargs={"symbol_getter": SymbolGetter(), "delay": 5})
+        p = multiprocessing.Process(target=symbol_processor.run, kwargs={"items": ["a", "b", "c"], "delay": 5})
         p.start()
 
         # wait for process to start and process one item
@@ -136,7 +132,7 @@ class TestStatefulDataProcessor(unittest.TestCase):
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
 
         processor = SymbolProcessor(self.file_rw, should_read=True, logger=self.mock_logger)
-        processor.run(symbol_getter=SymbolGetter(), delay=0)
+        processor.run(items=["a", "b", "c"], delay=0)
         calls = [call("Item a already processed, skipping..."),
                  call("Processed item b 2 / 3"),
                  call("Processed item c 3 / 3"),

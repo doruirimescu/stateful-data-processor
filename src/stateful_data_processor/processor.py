@@ -53,8 +53,9 @@ class StatefulDataProcessor:
     @abstractmethod
     def process_data(self, *args, **kwargs):
         """Template method for processing data. Get data, and call _iterate_items.
-        Arguments are forwarded to _iterate_items."""
-        ...
+        Arguments are forwarded to _iterate_items. You can override this method to implement
+        more custom processing."""
+        self._iterate_items(*args, **kwargs)
 
     def _iterate_items(self, items, *args, **kwargs):
         """General iteration method for processing items. This should be called from process_data.
