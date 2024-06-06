@@ -2,7 +2,7 @@ from abc import abstractmethod
 from logging import Logger, getLogger
 import signal
 from stateful_data_processor.file_rw import FileRW
-from typing import Optional, Any
+from typing import Optional, Any, Collection
 
 
 """
@@ -24,7 +24,10 @@ StatefulDataProcessor class to process data incrementally.
 
 class StatefulDataProcessor:
     def __init__(
-        self, file_rw: FileRW, logger: Optional[Logger]=None, should_read: Optional[bool] = True
+        self,
+        file_rw: FileRW,
+        logger: Optional[Logger] = None,
+        should_read: Optional[bool] = True,
     ):
         self.file_rw = file_rw
         if logger is None:
@@ -51,13 +54,13 @@ class StatefulDataProcessor:
         signal.signal(signal.SIGTERM, self._signal_handler)
 
     @abstractmethod
-    def process_data(self, items, *args, **kwargs):
+    def process_data(self, items: Collection[Any], *args, **kwargs):
         """Template method for processing data. Get data, and call _iterate_items.
         Arguments are forwarded to _iterate_items. You can override this method to implement
         more custom processing."""
         self._iterate_items(items, *args, **kwargs)
 
-    def _iterate_items(self, items, *args, **kwargs):
+    def _iterate_items(self, items: Collection[Any], *args, **kwargs):
         """General iteration method for processing items. This should be called from process_data.
         This method will iterate through the items and call process_item for each item.
         If an item is already processed, it will skip it.
@@ -68,17 +71,19 @@ class StatefulDataProcessor:
             self.logger.info("All items already processed, skipping...")
             return
 
-        for item in items:
+        for iteration_index, item in enumerate(items):
             if item in self.data:
                 self.logger.info(f"Item {item} already processed, skipping...")
                 continue
 
-            self.process_item(item, *args, **kwargs)
+            self.process_item(item, iteration_index, *args, **kwargs)
             self.logger.info(f"Processed item {item} {len(self.data)} / {items_len}")
         self.logger.info("Finished processing all items.")
 
     @abstractmethod
-    def process_item(self, item: Any, *args: Any, **kwargs: Any) -> Any:
+    def process_item(
+        self, item: Any, iteration_index: int, *args: Any, **kwargs: Any
+    ) -> Any:
         """Process a single item."""
         pass
 
@@ -89,7 +94,7 @@ class StatefulDataProcessor:
         self.logger.info("Data saved, exiting.")
         exit(0)
 
-    def run(self, items, *args, **kwargs):
+    def run(self, items: Collection[Any], *args, **kwargs):
         """Main method to run the processor."""
         if not items:
             self.logger.error("No items to process.")
