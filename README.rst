@@ -82,8 +82,10 @@ Usage
 
    class MyDataProcessor(StatefulDataProcessor):
 
-    def process_item(self, item, delay):
-        # Process the item
+    def process_item(self, item, iteration_index: int, delay: float):
+        ''' item and iteration_index are automatically supplied by the framework.
+         iteration_index may or may not be used.
+        '''
         self.data[item] = item ** 2  # Example processing: square the item
         time.sleep(delay)
 
