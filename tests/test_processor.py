@@ -55,6 +55,14 @@ class TestStatefulDataProcessor(unittest.TestCase):
             os.remove(TEST_FILE_JSON_PATH)
         del self.file_rw
 
+    def test_items_must_be_unique(self):
+        processor = SymbolProcessor(self.file_rw, should_read=False, logger=self.mock_logger)
+        processor.run(items=["a", "a", "b"], delay=0)
+        calls = [
+            call("Items must be unique."),
+        ]
+        self.mock_logger.error.assert_has_calls(calls, any_order=True)
+
     def test_process_data(self):
         processor = SymbolProcessor(
             self.file_rw, should_read=False, logger=self.mock_logger

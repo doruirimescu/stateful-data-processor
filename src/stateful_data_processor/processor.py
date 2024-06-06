@@ -51,11 +51,11 @@ class StatefulDataProcessor:
         signal.signal(signal.SIGTERM, self._signal_handler)
 
     @abstractmethod
-    def process_data(self, *args, **kwargs):
+    def process_data(self, items, *args, **kwargs):
         """Template method for processing data. Get data, and call _iterate_items.
         Arguments are forwarded to _iterate_items. You can override this method to implement
         more custom processing."""
-        self._iterate_items(*args, **kwargs)
+        self._iterate_items(items, *args, **kwargs)
 
     def _iterate_items(self, items, *args, **kwargs):
         """General iteration method for processing items. This should be called from process_data.
@@ -89,10 +89,18 @@ class StatefulDataProcessor:
         self.logger.info("Data saved, exiting.")
         exit(0)
 
-    def run(self, *args, **kwargs):
+    def run(self, items, *args, **kwargs):
         """Main method to run the processor."""
+        if not items:
+            self.logger.error("No items to process.")
+            return
+
+        if sorted(list(set(items))) != list(items):
+            self.logger.error("Items must be unique.")
+            return
+
         try:
-            self.process_data(*args, **kwargs)
+            self.process_data(items, *args, **kwargs)
         except Exception as e:
             raise e
         self.file_rw.write(self.data)
