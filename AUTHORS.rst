@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* Doru Irimescu <.>
+* Doru Irimescu <doru_metalguitar@yahoo.com>
