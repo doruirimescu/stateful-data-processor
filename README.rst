@@ -99,6 +99,14 @@ Usage
 The processor will handle SIGINT and SIGTERM signals to save the current state before exiting. Run your processor, and use Ctrl+C to send a SIGINT signal. When you run again, the processing will pick up from where
 you left off. A logger is automatically created if you do not inject it into the constructor.
 
+**Example usage in a large project:**
+
+`alphaspread analysis of nasdaq symbols <https://github.com/doruirimescu/python-trading/blob/65a558fcb3a5e80a1686c58cbf35722e045c8f1e/Trading/stock/analyze_nasdaq.py#L22>`_
+
+`filter ranging stocks <https://github.com/doruirimescu/python-trading/blob/master/Trading/live/range/filter_ranging_stocks.py>`_ 
+
+`xtb to yfinance symbol conversion <https://github.com/doruirimescu/python-trading/blob/941055693ad64bfe8c843fed79429b6db2a4317d/Trading/symbols/yfinance/xtb_to_yfinance.py#L21>`_
+
 Installation
 ------------
 
