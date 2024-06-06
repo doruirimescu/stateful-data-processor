@@ -108,6 +108,17 @@ You can install **stateful-data-processor** using pip:
 
 .. _pyscaffold-notes:
 
+Releasing
+------------
+
+.. code-block:: bash
+
+   git tag x.y
+   tox
+   tox -e docs
+   tox -e build
+   tox -e publish -- --repository pypi --verbose
+
 Note
 ====
 
