@@ -63,10 +63,11 @@ Solution
 - **Incremental Processing**: Process large amounts of data in a JSON file incrementally.
 - **Data Storage**: The data is stored in a dictionary, and the processor keeps track of the current step being processed.
 - **Graceful Interruption**: The processor can be interrupted with a SIGINT or SIGTERM signal, and the data will be saved to the file.
-- **Subclassing**: The processor is meant to be subclassed, and the `process_data` and `process_item methods` should be implemented.
-- **Item Processing**: The `process_item` method should be implemented to process a single item if `_iterate_items` is used.
-- **Unique Labels**: The data needs to be stored in a dictionary using unique labels. Each label corresponds to one item.
-- **Iterate Items**: The `process_item` method should be implemented to process a single item if `_iterate_items` is used.
+- **Subclassing**: The processor is meant to be subclassed, and the `process_item` method should be implemented.
+- **Item Processing**: The `process_item` is being called with all arguments forwarded from `run`, except for `items`, which is unpacked and iterated item by item.
+- **Unique Labels**: The data is be stored in a dictionary using unique labels corresponding to `items`. Thus, each `item` must be unique.
+- **Customization**: The `process_data` method can be overridden for more customized processing of the items.
+
 
 Usage
 -----
