@@ -33,6 +33,7 @@
 stateful-data-processor
 =======================
 
+![Pipeline status](https://github.com/doruirimescu/stateful-data-processor/actions/workflows/main.yml/badge.svg?branch=master) 
 
 **stateful-data-processor** is a utility designed to handle large amounts of data incrementally. It allows you to process data step-by-step, saving progress to avoid data loss in case of interruptions or errors. The processor can be subclassed to implement custom data processing logic.
 
