@@ -45,27 +45,27 @@ Features
 - Handle SIGINT and SIGTERM signals for graceful shutdown and state saving.
 - Easily subclass to implement custom data processing.
 
-Problem: let's say you have a large amount of data, that you want to loop through and process incrementally.
+Problem
+=======
+You have a large amount of data that you want to loop through and process incrementally.
 Processing takes time, and in case an error occurs, you do not want to lose all the progress.
 You want to save the data to a file and be able to continue processing from where you left off.
 You also want to be able to interrupt the processing with a SIGINT signal and save the data to the file.
 You want to be able to subclass the processor and implement the process_data and process_item methods.
 You want to be able to iterate through items and process them one by one.
 
-StatefulDataProcessor class to process data incrementally.
-    Process large amounts of data in a JSON file incrementally.
+Solution
+========
 
-    The data is stored in a dictionary and the processor keeps track of the current step being processed.
+**StatefulDataProcessor** class to process data incrementally:
 
-    The processor can be interrupted with a SIGINT or SIGTERM signal and the data will be saved to the file.
-    
-    The processor is meant to be subclassed and the process_data method should be implemented.
-    
-    The process_item method should be implemented to process a single item, if iterate_items is used.
-
-    The data needs to be stored in a dictionary, using unique labels. Each label corresponds to one item.
-
-    The process_item method should be implemented to process a single item, if iterate_items is used.
+- **Incremental Processing**: Process large amounts of data in a JSON file incrementally.
+- **Data Storage**: The data is stored in a dictionary, and the processor keeps track of the current step being processed.
+- **Graceful Interruption**: The processor can be interrupted with a SIGINT or SIGTERM signal, and the data will be saved to the file.
+- **Subclassing**: The processor is meant to be subclassed, and the `process_data` and `process_item methods` should be implemented.
+- **Item Processing**: The `process_item` method should be implemented to process a single item if `iterate_items` is used.
+- **Unique Labels**: The data needs to be stored in a dictionary using unique labels. Each label corresponds to one item.
+- **Iterate Items**: The `process_item` method should be implemented to process a single item if `iterate_items` is used.
 
 Usage
 -----
@@ -77,6 +77,7 @@ Usage
 
    class MyDataProcessor(StatefulDataProcessor):
       def process_data(self, items, delay):
+         # Here some typically more complex data acquisition and processing could take place
          self.iterate_items(items, delay)
 
     def process_item(self, item, delay):
