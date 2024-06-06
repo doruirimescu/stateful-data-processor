@@ -77,9 +77,6 @@ Usage
    from stateful_data_processor import StatefulDataProcessor, FileRW
 
    class MyDataProcessor(StatefulDataProcessor):
-      def process_data(self, items, delay):
-         # Here some typically more complex data acquisition and processing could take place
-         self._iterate_items(items, delay)
 
     def process_item(self, item, delay):
         # Process the item
