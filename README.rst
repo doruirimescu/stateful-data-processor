@@ -75,7 +75,8 @@ Usage
 .. code-block:: python
 
    import time
-   from stateful_data_processor import StatefulDataProcessor, FileRW
+   from stateful_data_processor.file_rw import FileRW
+   from stateful_data_processor.processor import StatefulDataProcessor
 
    class MyDataProcessor(StatefulDataProcessor):
 
