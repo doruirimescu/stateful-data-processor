@@ -67,6 +67,33 @@ StatefulDataProcessor class to process data incrementally.
 
     The process_item method should be implemented to process a single item, if iterate_items is used.
 
+Usage
+-----
+
+.. code-block:: python
+
+   import time
+   from stateful_data_processor import StatefulDataProcessor, FileRW
+
+   class MyDataProcessor(StatefulDataProcessor):
+      def process_data(self, items, delay):
+         self.iterate_items(items, delay)
+
+    def process_item(self, item, delay):
+        # Process the item
+        self.data[item] = item ** 2  # Example processing: square the item
+        time.sleep(delay)
+
+   # Example usage
+   file_rw = FileRW('data.json')
+   processor = MyDataProcessor(file_rw)
+
+   items_to_process = [1, 2, 3, 4, 5]
+   processor.run(items=items_to_process, delay=1.5)
+
+The processor will handle SIGINT and SIGTERM signals to save the current state before exiting. Run your processor, and use Ctrl+C to send a SIGINT signal. When you run again, the processing will pick up from where
+you left off. A logger is automatically created if you do not inject it into the constructor.
+
 Installation
 ------------
 
