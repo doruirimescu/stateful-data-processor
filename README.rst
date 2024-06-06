@@ -23,17 +23,19 @@
         :alt: Twitter
         :target: https://twitter.com/stateful-data-processor
 
-.. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
+.. |PyScaffold| image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
     :alt: Project generated with PyScaffold
     :target: https://pyscaffold.org/
+.. |Pipeline status| image:: https://github.com/doruirimescu/stateful-data-processor/actions/workflows/main.yml/badge.svg?branch=master
+   :alt: Pipeline status
+.. |Python| image:: https://img.shields.io/badge/-Python-05122A?style=flat&logo=python
+   :alt: Python
 
-|
+|PyScaffold| |Python| |Pipeline status|
 
 =======================
 stateful-data-processor
 =======================
-![Pipeline status](https://github.com/doruirimescu/stateful-data-processor/actions/workflows/main.yml/badge.svg?branch=master) 
-
 
 **stateful-data-processor** is a utility designed to handle large amounts of data incrementally. It allows you to process data step-by-step, saving progress to avoid data loss in case of interruptions or errors. The processor can be subclassed to implement custom data processing logic.
 
