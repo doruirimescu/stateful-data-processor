@@ -18,7 +18,7 @@ StatefulDataProcessor class to process data incrementally.
     The data is stored in a dictionary and the processor keeps track of the current step being processed.
     The processor can be interrupted with a SIGINT or SIGTERM signal and the data will be saved to the file.
     The processor is meant to be subclassed and the process_data method should be implemented.
-    The process_item method should be implemented to process a single item, if iterate_items is used.
+    The process_item method should be implemented to process a single item, if _iterate_items is used.
 """
 
 
@@ -52,11 +52,11 @@ class StatefulDataProcessor:
 
     @abstractmethod
     def process_data(self, *args, **kwargs):
-        """Template method for processing data. Get data, and call iterate_items.
-        Arguments are forwarded to iterate_items."""
+        """Template method for processing data. Get data, and call _iterate_items.
+        Arguments are forwarded to _iterate_items."""
         ...
 
-    def iterate_items(self, items, *args, **kwargs):
+    def _iterate_items(self, items, *args, **kwargs):
         """General iteration method for processing items. This should be called from process_data.
         This method will iterate through the items and call process_item for each item.
         If an item is already processed, it will skip it.

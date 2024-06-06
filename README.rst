@@ -41,7 +41,7 @@ Features
 
 - Incrementally process large datasets.
 - Save the processing state to a file.
-- Resume the processing state and skip already processed items automatically 
+- Resume the processing state and skip already processed items automatically
 - Handle SIGINT and SIGTERM signals for graceful shutdown and state saving.
 - Easily subclass to implement custom data processing.
 
@@ -63,9 +63,9 @@ Solution
 - **Data Storage**: The data is stored in a dictionary, and the processor keeps track of the current step being processed.
 - **Graceful Interruption**: The processor can be interrupted with a SIGINT or SIGTERM signal, and the data will be saved to the file.
 - **Subclassing**: The processor is meant to be subclassed, and the `process_data` and `process_item methods` should be implemented.
-- **Item Processing**: The `process_item` method should be implemented to process a single item if `iterate_items` is used.
+- **Item Processing**: The `process_item` method should be implemented to process a single item if `_iterate_items` is used.
 - **Unique Labels**: The data needs to be stored in a dictionary using unique labels. Each label corresponds to one item.
-- **Iterate Items**: The `process_item` method should be implemented to process a single item if `iterate_items` is used.
+- **Iterate Items**: The `process_item` method should be implemented to process a single item if `_iterate_items` is used.
 
 Usage
 -----
@@ -78,7 +78,7 @@ Usage
    class MyDataProcessor(StatefulDataProcessor):
       def process_data(self, items, delay):
          # Here some typically more complex data acquisition and processing could take place
-         self.iterate_items(items, delay)
+         self._iterate_items(items, delay)
 
     def process_item(self, item, delay):
         # Process the item

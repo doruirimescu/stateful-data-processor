@@ -40,7 +40,7 @@ class SymbolProcessor(StatefulDataProcessor):
     """
     def process_data(self, symbol_getter: SymbolGetter, delay: float = 0.0):
         symbols = symbol_getter.get_symbols()
-        self.iterate_items(symbols, delay)
+        self._iterate_items(symbols, delay)
 
     def process_item(self, item: str, delay=0.0, *args: Any, **kwargs: Any) -> None:
         processed = item + "!"
