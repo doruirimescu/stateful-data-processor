@@ -41,7 +41,7 @@ class SymbolProcessor(StatefulDataProcessor):
 
 
 class NumberProcessor(StatefulDataProcessor):
-    LOOKUP = ["a", "b", "c"]
+    LOOKUP = ["a", "b", "c", "d"]
 
     def process_item(
         self, item: int, iteration_index: int, delay=0.0, *args: Any, **kwargs: Any
@@ -172,17 +172,16 @@ class TestStatefulDataProcessor(unittest.TestCase):
         ]
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
 
-    def test_number_processor(self):
+    def test_number_processor_print_interval(self):
         processor = NumberProcessor(
-            self.file_rw, should_read=False, logger=self.mock_logger
+            self.file_rw, should_read=False, logger=self.mock_logger, print_interval=2
         )
-        processor.run(items=[1, 2, 3], delay=0)
-        self.assertEqual(processor.data, {1: "a1", 2: "b4", 3: "c9"})
+        processor.run(items=[1, 2, 3, 4], delay=0)
+        self.assertEqual(processor.data, {1: "a1", 2: "b4", 3: "c9", 4: "d16"})
 
         calls = [
-            call("Processed item 1 1 / 3"),
-            call("Processed item 2 2 / 3"),
-            call("Processed item 3 3 / 3"),
+            call("Processed item 1 1 / 4"),
+            call("Processed item 3 3 / 4"),
             call("Finished processing all items."),
         ]
         self.mock_logger.info.assert_has_calls(calls, any_order=True)

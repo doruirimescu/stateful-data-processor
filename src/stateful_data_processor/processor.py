@@ -28,8 +28,10 @@ class StatefulDataProcessor:
         file_rw: FileRW,
         logger: Optional[Logger] = None,
         should_read: Optional[bool] = True,
+        print_interval: Optional[int] = 1,
     ):
         self.file_rw = file_rw
+        self.print_interval = print_interval
         if logger is None:
             self.logger = getLogger("StatefulDataProcessor")
         else:
@@ -77,7 +79,8 @@ class StatefulDataProcessor:
                 continue
 
             self.process_item(item, iteration_index, *args, **kwargs)
-            self.logger.info(f"Processed item {item} {len(self.data)} / {items_len}")
+            if (iteration_index) % self.print_interval == 0:
+                self.logger.info(f"Processed item {item} {len(self.data)} / {items_len}")
         self.logger.info("Finished processing all items.")
 
     @abstractmethod
