@@ -29,9 +29,11 @@ class StatefulDataProcessor:
         logger: Optional[Logger] = None,
         should_read: Optional[bool] = True,
         print_interval: Optional[int] = 1,
+        skip_list: Optional[Collection[Any]] = None,
     ):
         self.file_rw = file_rw
         self.print_interval = print_interval
+        self.skip_list = skip_list
         if logger is None:
             self.logger = getLogger("StatefulDataProcessor")
         else:
@@ -78,10 +80,14 @@ class StatefulDataProcessor:
                 self.logger.info(f"Item {item} already processed, skipping...")
                 continue
 
+            if self.skip_list and item in self.skip_list:
+                self.logger.info(f"Item {item} in skip list, skipping...")
+                continue
+
             self.process_item(item, iteration_index, *args, **kwargs)
             if (iteration_index) % self.print_interval == 0:
-                self.logger.info(f"Processed item {item} {len(self.data)} / {items_len}")
-        self.logger.info("Finished processing all items.")
+                self.logger.info(f"Processed item {item} {iteration_index + 1} / {items_len}")
+        self.logger.info(f"Finished processing all items. {len(self.data)} / {items_len} items processed.")
 
     @abstractmethod
     def process_item(
