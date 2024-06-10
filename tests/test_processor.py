@@ -88,7 +88,7 @@ class TestStatefulDataProcessor(unittest.TestCase):
             call("Processed item a 1 / 3"),
             call("Processed item b 2 / 3"),
             call("Processed item c 3 / 3"),
-            call("Finished processing all items."),
+            call("Finished processing all items. 3 / 3 items processed."),
         ]
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
         wait_for_file(TEST_FILE_JSON_PATH)
@@ -168,7 +168,7 @@ class TestStatefulDataProcessor(unittest.TestCase):
             call("Item a already processed, skipping..."),
             call("Processed item b 2 / 3"),
             call("Processed item c 3 / 3"),
-            call("Finished processing all items."),
+            call("Finished processing all items. 3 / 3 items processed."),
         ]
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
 
@@ -182,6 +182,24 @@ class TestStatefulDataProcessor(unittest.TestCase):
         calls = [
             call("Processed item 1 1 / 4"),
             call("Processed item 3 3 / 4"),
-            call("Finished processing all items."),
+            call("Finished processing all items. 4 / 4 items processed."),
+        ]
+        self.mock_logger.info.assert_has_calls(calls, any_order=True)
+
+    def test_number_processor_skip_list(self):
+        skip_list = [2, 4, 7]
+        processor = NumberProcessor(
+            self.file_rw, should_read=False, logger=self.mock_logger, skip_list=skip_list
+        )
+        processor.run(items=[1, 2, 3, 4, 7], delay=0)
+        self.assertEqual(processor.data, {1: "a1", 3: "c9"})
+
+        calls = [
+            call("Processed item 1 1 / 5"),
+            call("Item 2 in skip list, skipping..."),
+            call("Processed item 3 3 / 5"),
+            call("Item 4 in skip list, skipping..."),
+            call("Item 7 in skip list, skipping..."),
+            call("Finished processing all items. 2 / 5 items processed."),
         ]
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
