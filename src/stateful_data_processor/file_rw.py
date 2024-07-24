@@ -7,6 +7,7 @@ import json
 class FileRW:
     def __init__(self, file_name: str, logger: Optional[Logger]=None) -> None:
         self.file_name = file_name
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
         if logger is None:
             self.logger = getLogger("FileRW")
         else:
