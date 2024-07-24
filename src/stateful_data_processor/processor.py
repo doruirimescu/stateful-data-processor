@@ -109,7 +109,7 @@ class StatefulDataProcessor:
             self.logger.error("No items to process.")
             return
 
-        if sorted(list(set(items))) != list(items):
+        if len(list(set(items))) != len(list(items)):
             self.logger.error("Items must be unique.")
             return
 
