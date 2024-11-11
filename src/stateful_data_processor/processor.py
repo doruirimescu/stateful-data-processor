@@ -82,21 +82,23 @@ class StatefulDataProcessor:
                 self.logger.info(f"Item {item} already processed, skipping...")
                 continue
 
-            elif item in self.data and self.should_reprocess:
-                if self.skip_list and item in self.skip_list:
-                    self.logger.info(f"Item {item} in skip list, skipping...")
-                    continue
-                self.logger.info(f"Reprocessing item {item}...")
-                self.reprocess_item(item, iteration_index, *args, **kwargs)
-
             if self.skip_list and item in self.skip_list:
                 self.logger.info(f"Item {item} in skip list, skipping...")
                 continue
 
-            self.process_item(item, iteration_index, *args, **kwargs)
+            if item in self.data and self.should_reprocess:
+                self.logger.info(f"Reprocessing item {item}...")
+                self.reprocess_item(item, iteration_index, *args, **kwargs)
+            else:
+                self.process_item(item, iteration_index, *args, **kwargs)
+
             if (iteration_index) % self.print_interval == 0:
-                self.logger.info(f"Processed item {item} {iteration_index + 1} / {items_len}")
-        self.logger.info(f"Finished processing all items. {len(self.data)} / {items_len} items processed.")
+                self.logger.info(
+                    f"Processed item {item} {iteration_index + 1} / {items_len}"
+                )
+        self.logger.info(
+            f"Finished processing all items. {len(self.data)} / {items_len} items processed."
+        )
 
     @abstractmethod
     def process_item(
