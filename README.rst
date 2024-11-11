@@ -47,6 +47,7 @@ Features
 - Resume the processing state and skip already processed items automatically
 - Handle SIGINT and SIGTERM signals for graceful shutdown and state saving.
 - Easily subclass to implement custom data processing.
+- Reprocess items that were already stored into a file (explore alternative processing on cached data). 
 
 Problem
 =======
