@@ -30,10 +30,12 @@ class StatefulDataProcessor:
         should_read: Optional[bool] = True,
         print_interval: Optional[int] = 1,
         skip_list: Optional[Collection[Any]] = None,
+        should_reprocess: Optional[bool] = False,
     ):
         self.file_rw = file_rw
         self.print_interval = print_interval
         self.skip_list = skip_list
+        self.should_reprocess = should_reprocess
         if logger is None:
             self.logger = getLogger("StatefulDataProcessor")
         else:
@@ -76,9 +78,16 @@ class StatefulDataProcessor:
             return
 
         for iteration_index, item in enumerate(items):
-            if item in self.data:
+            if item in self.data and not self.should_reprocess:
                 self.logger.info(f"Item {item} already processed, skipping...")
                 continue
+
+            elif item in self.data and self.should_reprocess:
+                if self.skip_list and item in self.skip_list:
+                    self.logger.info(f"Item {item} in skip list, skipping...")
+                    continue
+                self.logger.info(f"Reprocessing item {item}...")
+                self.reprocess_item(item, iteration_index, *args, **kwargs)
 
             if self.skip_list and item in self.skip_list:
                 self.logger.info(f"Item {item} in skip list, skipping...")
@@ -94,6 +103,13 @@ class StatefulDataProcessor:
         self, item: Any, iteration_index: int, *args: Any, **kwargs: Any
     ) -> Any:
         """Process a single item."""
+        pass
+
+    @abstractmethod
+    def reprocess_item(
+        self, item: Any, iteration_index: int, *args: Any, **kwargs: Any
+    ) -> Any:
+        """Reprocess a single item."""
         pass
 
     def _signal_handler(self, signum, frame):
