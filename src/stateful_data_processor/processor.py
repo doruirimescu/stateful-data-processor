@@ -111,7 +111,8 @@ class StatefulDataProcessor:
     def reprocess_item(
         self, item: Any, iteration_index: int, *args: Any, **kwargs: Any
     ) -> Any:
-        """Reprocess a single item."""
+        """Reprocess a single item. Alternative to process_item. This can be done if the item is already in the data,
+        and some alternative computation is explored."""
         pass
 
     def _signal_handler(self, signum, frame):
