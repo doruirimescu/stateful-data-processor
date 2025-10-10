@@ -7,9 +7,9 @@
     .. image:: https://readthedocs.org/projects/stateful-data-processor/badge/?version=latest
         :alt: ReadTheDocs
         :target: https://stateful-data-processor.readthedocs.io/en/stable/
-    .. image:: https://img.shields.io/coveralls/github/<USER>/stateful-data-processor/main.svg
+    .. image:: https://img.shields.io/coveralls/github/doruirimescu/stateful-data-processor/main.svg
         :alt: Coveralls
-        :target: https://coveralls.io/r/<USER>/stateful-data-processor
+        :target: https://coveralls.io/r/doruirimescu/stateful-data-processor
     .. image:: https://img.shields.io/pypi/v/stateful-data-processor.svg
         :alt: PyPI-Server
         :target: https://pypi.org/project/stateful-data-processor/
@@ -30,8 +30,16 @@
    :alt: Pipeline status
 .. |Python| image:: https://img.shields.io/badge/-Python-05122A?style=flat&logo=python
    :alt: Python
+.. |Monthly Downloads| image:: https://pepy.tech/badge/stateful-data-processor/month
+        :alt: Monthly Downloads
+        :target: https://pepy.tech/project/stateful-data-processor
+.. |Coverage| image:: https://coveralls.io/repos/github/doruirimescu/stateful-data-processor/badge.svg?branch=master
+        :alt: Coverage..
+        :target: https://coveralls.io/github/doruirimescu/stateful-data-processor?branch=master
 
-|PyScaffold| |Python| |Pipeline status|
+
+
+|PyScaffold| |Python| |Pipeline status| |Monthly Downloads| |Coverage|
 
 =======================
 stateful-data-processor
