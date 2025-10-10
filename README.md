@@ -96,13 +96,164 @@ stocks](https://github.com/doruirimescu/python-trading/blob/master/Trading/live/
 [xtb to yfinance symbol
 conversion](https://github.com/doruirimescu/python-trading/blob/941055693ad64bfe8c843fed79429b6db2a4317d/Trading/symbols/yfinance/xtb_to_yfinance.py#L21)
 
-## Installation
+### Example: Passing extra arguments via a subclass
 
-You can install **stateful-data-processor** using pip:
+File: `processors.py`
 
-``` bash
-pip install stateful-data-processor
+```python3
+from typing import Any, Optional
+from stateful_data_processor.processor import StatefulDataProcessor
+
+class GenericAnalyzer(StatefulDataProcessor):
+    """
+    Parent processor that expects an extra kwarg: `payload`.
+    In a real project this could be HTML, JSON, text, bytes, etc.
+    """
+
+    def process_item(self, item: str, payload: Optional[Any], iteration_index: int):
+        # Use the extra arg however you like
+        self.logger.info(f"[{iteration_index}] Processing {item}; has_payload={payload is not None}")
+
+        # Do minimal "work" for the README: store something derived from the payload
+        result = {
+            "item": item,
+            "payload_preview": str(payload)[:40],  # keep it tiny for docs
+            "payload_length": len(str(payload)) if payload is not None else 0,
+        }
+
+        # Persist per-item result; the base class handles saving/resuming
+        self.data[item] = result
 ```
+
+File: `run_example.py`
+
+```python3
+# run_example.py
+from datetime import date
+from typing import Any, List
+
+from stateful_data_processor.file_rw import JsonFileRW
+from processors import GenericAnalyzer
+
+def build_payload(item: str) -> Any:
+    """
+    Stand-in for I/O or computation (e.g., HTTP GET, DB read, cache lookup).
+    Keep it simple for the README.
+    """
+    return f"payload for {item}"
+
+class UrlAnalyzer(GenericAnalyzer):
+    """
+    Child processor that *adds* the extra argument (`payload`)
+    and forwards it to the parent via super().
+    """
+    def process_item(self, item: str, iteration_index: int):
+        payload = build_payload(item)
+        # Forward both the original item and the extra kwarg to the parent
+        super().process_item(item=item, payload=payload, iteration_index=iteration_index)
+
+if __name__ == "__main__":
+    items: List[str] = ["AAPL", "MSFT", "GOOGL", "NVDA"]
+
+    # Results are saved incrementally; reruns resume from where you stopped.
+    out_file = JsonFileRW(f"./demo-analysis-{date.today()}.json")
+
+    analyzer = UrlAnalyzer(json_file_writer=out_file)
+    analyzer.run(items=items)
+
+    # Access in-memory results if needed
+    data = analyzer.data
+    print(f"Processed {len(data)} items. Output file: {out_file.path}")
+```
+
+
+---
+
+### Example: Passing extra arguments via a subclass
+
+Sometimes your per-item logic needs more than just the item itself (e.g., a pre-fetched blob, metadata, cached JSON). You can add **any keyword args you want** to your processor’s `process_item` signature, and then supply them from a subclass.
+
+#### `processors.py`
+
+```python
+# processors.py
+from typing import Any, Optional
+from stateful_data_processor.processor import StatefulDataProcessor
+
+class GenericAnalyzer(StatefulDataProcessor):
+    """
+    Parent processor that expects an extra kwarg: `payload`.
+    In a real project this could be HTML, JSON, text, bytes, etc.
+    """
+
+    def process_item(self, item: str, payload: Optional[Any], iteration_index: int):
+        # Use the extra arg however you like
+        self.logger.info(f"[{iteration_index}] Processing {item}; has_payload={payload is not None}")
+
+        # Do minimal "work" for demonstrational purpose: store something derived from the payload
+        result = {
+            "item": item,
+            "payload_preview": str(payload)[:40],  # keep it tiny for docs
+            "payload_length": len(str(payload)) if payload is not None else 0,
+        }
+
+        # Persist per-item result; the base class handles saving/resuming
+        self.data[item] = result
+```
+
+#### `run_example.py`
+
+```python
+# run_example.py
+from datetime import date
+from typing import Any, List
+
+from stateful_data_processor.file_rw import JsonFileRW
+from processors import GenericAnalyzer
+
+def build_payload(item: str) -> Any:
+    """
+    Stand-in for I/O or computation (e.g., HTTP GET, DB read, cache lookup).
+    Keep it simple for the README.
+    """
+    return f"payload for {item}"
+
+class UrlAnalyzer(GenericAnalyzer):
+    """
+    Child processor that *adds* the extra argument (`payload`)
+    and forwards it to the parent via super().
+    """
+    def process_item(self, item: str, iteration_index: int):
+        payload = build_payload(item)
+        # Forward both the original item and the extra kwarg to the parent
+        super().process_item(item=item, payload=payload, iteration_index=iteration_index)
+
+if __name__ == "__main__":
+    items: List[str] = ["AAPL", "MSFT", "GOOGL", "NVDA"]
+
+    # Results are saved incrementally; reruns resume from where you stopped.
+    out_file = JsonFileRW(f"./demo-analysis-{date.today()}.json")
+
+    analyzer = UrlAnalyzer(json_file_writer=out_file)
+    analyzer.run(items=items)
+
+    # Access in-memory results if needed
+    data = analyzer.data
+    print(f"Processed {len(data)} items. Output file: {out_file.path}")
+```
+
+#### What this demonstrates
+
+* The **parent** class `GenericAnalyzer` defines `process_item(self, item, payload, iteration_index)` — here, `payload` is an *extra* kwarg (analogous to the `soup` argument in your original `GurufocusAnalyzer`).
+* The **child** class `UrlAnalyzer` overrides `process_item(self, item, iteration_index)`, computes the extra data (`payload = build_payload(item)`), and then **forwards** it with:
+
+  ```python
+  super().process_item(item=item, payload=payload, iteration_index=iteration_index)
+  ```
+* You can add **any keyword arguments** you need to the parent’s `process_item` (e.g., `html`, `row`, `features`, `raw_bytes`, `context`, etc.), and supply them from subclasses that know how to build/fetch them.
+* All the usual benefits still apply: incremental processing, state persisted to disk, resumability after crashes or Ctrl+C, and a simple subclassing model.
+
+
 
 ## Releasing
 
