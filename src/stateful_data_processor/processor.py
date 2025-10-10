@@ -135,5 +135,6 @@ class StatefulDataProcessor:
         try:
             self.process_data(items, *args, **kwargs)
         except Exception as e:
+            self.file_rw.write(self.data)
             raise e
         self.file_rw.write(self.data)
