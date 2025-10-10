@@ -47,60 +47,44 @@ step-by-step, saving progress to avoid data loss in case of
 interruptions or errors. The processor can be subclassed to implement
 custom data processing logic.
 
-## Features
+### Features
 
--   Incrementally process large datasets.
--   Save the processing state to a file.
--   Resume the processing state and skip already processed items
-    automatically.
--   Save progress when exception occurs.
--   Handle SIGINT and SIGTERM signals for graceful shutdown and state
-    saving.
--   Easily subclass to implement custom data processing.
--   Reprocess items that were already stored into a file (explore
-    alternative processing on cached data).
+* **Incremental & resumable** — process large datasets in chunks and pick up exactly where you left off.
+* **State persisted to disk** — saves progress to a file so restarts are fast and reliable.
+* **Graceful shutdown** — handles `SIGINT`/`SIGTERM` (e.g., Ctrl+C) and saves state before exiting.
+* **Crash-safe** — catches exceptions, saves current progress, and lets you restart without losing work.
+* **Automatic logging** — a logger is created for you if you don’t inject one.
+* **Skip completed work** — automatically avoids already processed items on restart.
+* **Easy to extend** — subclass to implement custom processing logic.
+* **Reprocess cached items** — optionally revisit items already stored to explore alternative processing strategies.
+
 
 ### Problem
 
-You have a large amount of data that you want to loop through and
-process incrementally. Processing takes time, and in case an error
-occurs, you do not want to lose all the progress. You want to save the
-data to a file and be able to continue processing from where you left
-off. You also want to be able to interrupt the processing with a SIGINT
-signal and save the data to the file. You want to be able to subclass
-the processor and implement the process_data and process_item methods.
-You want to be able to iterate through items and process them one by
-one.
+Processing massive datasets is slow, brittle, and easy to interrupt. You need a way to:
+
+* Iterate through items one-by-one and **save progress to disk** as you go.
+* **Resume exactly where you left off** after crashes, timeouts, restarts, or upgrades.
+* **Gracefully interrupt** with `SIGINT`/`SIGTERM` (e.g., Ctrl+C) and persist state before exiting.
+* **Subclass cleanly** to provide your own `process_data` and `process_item` logic.
+* **Avoid rework** by skipping already-processed items—or intentionally **reprocess cached items** to explore alternatives.
+
+In short: incremental processing with safety, resumability, and extensibility built in.
 
 ### Solution
 
-**StatefulDataProcessor** class to process data incrementally:
+**`StatefulDataProcessor`** provides a resilient, incremental pipeline for large datasets:
 
--   **Incremental Processing**: Process large amounts of data in a JSON
-    file incrementally.
--   **Data Storage**: The data is stored in a dictionary, and the
-    processor keeps track of the current step being processed.
--   **Graceful Interruption**: The processor can be interrupted with a
-    SIGINT or SIGTERM signal, and the data will be saved to the file.
--   **Subclassing**: The processor is meant to be subclassed, and the
-    [process_item]{.title-ref} method should be implemented.
--   **Item Processing**: The [process_item]{.title-ref} is being called
-    with all arguments forwarded from [run]{.title-ref}, except for
-    [items]{.title-ref}, which is unpacked and iterated item by item.
--   **Unique Labels**: The data is be stored in a dictionary using
-    unique labels corresponding to [items]{.title-ref}. Thus, each
-    [item]{.title-ref} must be unique.
--   **Customization**: The [process_data]{.title-ref} method can be
-    overridden for more customized processing of the items.
+* **Incremental processing:** Iterate through big inputs in manageable chunks (e.g., from a JSON source) without starting over.
+* **Persistent state:** Progress and results are stored in a dictionary on disk; the processor tracks the current position.
+* **Graceful interruption:** Handles `SIGINT`/`SIGTERM` (e.g., Ctrl+C) and saves state before exiting.
+* **Subclass-first design:** Implement your own logic by overriding `process_item` (required) and `process_data` (optional).
+* **Per-item execution:** `run(**kwargs)` forwards all arguments to `process_item`, iterating over `items` and processing one at a time.
+* **Unique keys:** Results are keyed by each item’s unique label, so items must be unique.
+* **Customizable workflow:** Override `process_data` to pre/post-process items, filter, batch, or enrich as needed.
+
 
 ## Usage
-The processor will handle SIGINT and SIGTERM signals to save the current
-state before exiting. Run your processor, and use Ctrl+C to send a
-SIGINT signal. When you run again, the processing will pick up from
-where you left off. A logger is automatically created if you do not
-inject it into the constructor. Any exceptions raised during processing
-will be caught and the processor will save the data before exiting.
-
 **Example usage in a large project:**
 
 [alphaspread analysis of nasdaq
