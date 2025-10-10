@@ -7,6 +7,40 @@
 
 # stateful-data-processor
 
+**Resumable, checkpointed item processing with graceful interrupts — subclass and go.**
+
+A tiny utility for long-running, restart-safe loops: process items, persist state, resume exactly where you stopped or when an exception is raised, and handle SIGINT/SIGTERM cleanly.
+
+- **Install:** `pip install stateful-data-processor`
+- **Why:** Skip rework after crashes/interrupts; keep logic in a single subclass.
+- **Good for:** Batch jobs, ETL steps, scraping, “process a big list with restarts”.
+
+## Quick start (60 seconds)
+
+``` python
+import time
+from stateful_data_processor.file_rw import FileRW
+from stateful_data_processor.processor import StatefulDataProcessor
+
+class MyDataProcessor(StatefulDataProcessor):
+
+ def process_item(self, item, iteration_index: int, delay: float):
+     ''' item and iteration_index are automatically supplied by the framework.
+      iteration_index may or may not be used.
+     '''
+     self.data[item] = item ** 2  # Example processing: square the item
+     time.sleep(delay) # Simulate long processing time
+
+# Example usage
+file_rw = FileRW('data.json')
+processor = MyDataProcessor(file_rw)
+
+items_to_process = [1, 2, 3, 4, 5]
+processor.run(items=items_to_process, delay=1.5) # Ctrl+C anytime; rerun to resume.
+```
+
+---
+
 **stateful-data-processor** is a utility designed to handle large
 amounts of data incrementally. It allows you to process data
 step-by-step, saving progress to avoid data loss in case of
@@ -18,7 +52,8 @@ custom data processing logic.
 -   Incrementally process large datasets.
 -   Save the processing state to a file.
 -   Resume the processing state and skip already processed items
-    automatically
+    automatically.
+-   Save progress when exception occurs.
 -   Handle SIGINT and SIGTERM signals for graceful shutdown and state
     saving.
 -   Easily subclass to implement custom data processing.
@@ -59,34 +94,12 @@ one.
     overridden for more customized processing of the items.
 
 ## Usage
-
-``` python
-import time
-from stateful_data_processor.file_rw import FileRW
-from stateful_data_processor.processor import StatefulDataProcessor
-
-class MyDataProcessor(StatefulDataProcessor):
-
- def process_item(self, item, iteration_index: int, delay: float):
-     ''' item and iteration_index are automatically supplied by the framework.
-      iteration_index may or may not be used.
-     '''
-     self.data[item] = item ** 2  # Example processing: square the item
-     time.sleep(delay)
-
-# Example usage
-file_rw = FileRW('data.json')
-processor = MyDataProcessor(file_rw)
-
-items_to_process = [1, 2, 3, 4, 5]
-processor.run(items=items_to_process, delay=1.5)
-```
-
 The processor will handle SIGINT and SIGTERM signals to save the current
 state before exiting. Run your processor, and use Ctrl+C to send a
 SIGINT signal. When you run again, the processing will pick up from
 where you left off. A logger is automatically created if you do not
-inject it into the constructor.
+inject it into the constructor. Any exceptions raised during processing
+will be caught and the processor will save the data before exiting.
 
 **Example usage in a large project:**
 
