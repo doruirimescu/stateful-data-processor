@@ -38,6 +38,7 @@ class StatefulDataProcessor:
         self.should_reprocess = should_reprocess
         if logger is None:
             self.logger = getLogger("StatefulDataProcessor")
+            self.logger.setLevel("INFO")
         else:
             self.logger = logger
 
