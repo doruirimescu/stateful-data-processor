@@ -52,3 +52,5 @@ MANIFEST
 .venv*/
 .conda*/
 .python-version
+
+src/stateful_data_processor/_version.py
