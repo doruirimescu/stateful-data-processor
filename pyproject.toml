@@ -1,9 +1,45 @@
 [build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
-requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
+requires = ["setuptools>=68", "setuptools_scm[toml]>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "stateful-data-processor"
+dynamic = ["version"]  # only version is dynamic
+description = "Resumable, checkpointed item processing with graceful interrupts."
+readme = "README.rst"
+requires-python = ">=3.9"
+license = { file = "LICENSE.txt" }
+authors = [{ name = "Doru Irimescu" }]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+# No required runtime deps → either omit this line or keep it as an empty array
+dependencies = []
+
+[project.optional-dependencies]
+testing = ["setuptools", "pytest>=7", "pytest-cov"]
+
+[project.urls]
+Documentation = "https://github.com/doruirimescu/stateful-data-processor/"
+Source = "https://github.com/doruirimescu/stateful-data-processor/"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.setuptools_scm]
-# For smarter version schemes and other configuration options,
-# check out https://github.com/pypa/setuptools_scm
-version_scheme = "no-guess-dev"
+write_to = "src/stateful_data_processor/_version.py"
+fallback_version = "0.0.0"
+
+[tool.pytest.ini_options]
+addopts = "-q"
