@@ -36,10 +36,13 @@
 .. |Coverage| image:: https://coveralls.io/repos/github/doruirimescu/stateful-data-processor/badge.svg?branch=master
         :alt: Coverage..
         :target: https://coveralls.io/github/doruirimescu/stateful-data-processor?branch=master
+.. |PyPi| image:: https://img.shields.io/pypi/v/stateful-data-processor.svg
+        :alt: PyPI-Server
+        :target: https://pypi.org/project/stateful-data-processor/
 
 
 
-|PyScaffold| |Python| |Pipeline status| |Monthly Downloads| |Coverage|
+|Python| |PyPi| |Coverage| |Pipeline status| |Monthly Downloads| |PyScaffold|
 
 =======================
 stateful-data-processor
