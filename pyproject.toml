@@ -39,6 +39,8 @@ where = ["src"]
 
 [tool.setuptools_scm]
 write_to = "src/stateful_data_processor/_version.py"
+local_scheme = "no-local-version"
+version_scheme = "post-release"
 fallback_version = "0.0.0"
 
 [tool.pytest.ini_options]
