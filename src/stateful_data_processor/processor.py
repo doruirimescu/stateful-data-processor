@@ -32,11 +32,13 @@ class StatefulDataProcessor:
         print_interval: Optional[int] = 1,
         skip_list: Optional[Collection[Any]] = None,
         should_reprocess: Optional[bool] = False,
+        verbose_skip: bool = False,
     ):
         self.file_rw = file_rw
         self.print_interval = print_interval
         self.skip_list = skip_list
         self.should_reprocess = should_reprocess
+        self.verbose_skip = verbose_skip
         if logger is None:
             self.logger = getLogger("StatefulDataProcessor")
             self.logger.setLevel("INFO")
@@ -80,9 +82,13 @@ class StatefulDataProcessor:
             self.logger.info("All items already processed, skipping...")
             return
 
+        skipped_count = 0
         for iteration_index, item in enumerate(items):
             if item in self.data and not self.should_reprocess:
-                self.logger.info(f"Item {item} already processed, skipping...")
+                if self.verbose_skip:
+                    self.logger.info(f"Item {item} already processed, skipping...")
+                else:
+                    skipped_count += 1
                 continue
 
             if self.skip_list and item in self.skip_list:
@@ -99,6 +105,8 @@ class StatefulDataProcessor:
                 self.logger.info(
                     f"Processed item {item} {iteration_index + 1} / {items_len}"
                 )
+        if skipped_count:
+            self.logger.info(f"Skipped {skipped_count} already processed items.")
         self.logger.info(
             f"Finished processing all items. {len(self.data)} / {items_len} items processed."
         )

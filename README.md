@@ -54,7 +54,7 @@ custom data processing logic.
 * **Graceful shutdown** — handles `SIGINT`/`SIGTERM` (e.g., Ctrl+C) and saves state before exiting.
 * **Crash-safe** — catches exceptions, saves current progress, and lets you restart without losing work.
 * **Automatic logging** — a logger is created for you if you don’t inject one.
-* **Skip completed work** — automatically avoids already processed items on restart.
+* **Skip completed work** — automatically avoids already processed items on restart; logs a single `Skipped N items.` summary by default, or per-item messages with `verbose_skip=True`.
 * **Easy to extend** — subclass to implement custom processing logic.
 * **Reprocess cached items** — optionally revisit items already stored to explore alternative processing strategies.
 

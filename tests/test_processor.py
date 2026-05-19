@@ -161,7 +161,7 @@ class TestStatefulDataProcessor(unittest.TestCase):
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
 
         processor = SymbolProcessor(
-            self.file_rw, should_read=True, logger=self.mock_logger
+            self.file_rw, should_read=True, logger=self.mock_logger, verbose_skip=True
         )
         processor.run(items=["a", "b", "c"], delay=0)
         calls = [
@@ -169,6 +169,22 @@ class TestStatefulDataProcessor(unittest.TestCase):
             call("Processed item b 2 / 3"),
             call("Processed item c 3 / 3"),
             call("Finished processing all items. 3 / 3 items processed."),
+        ]
+        self.mock_logger.info.assert_has_calls(calls, any_order=True)
+
+    def test_skip_summary_when_verbose_skip_disabled(self):
+        processor = SymbolProcessor(
+            self.file_rw, should_read=False, logger=self.mock_logger
+        )
+        processor.run(items=["a", "b", "c"], delay=0)
+
+        processor2 = SymbolProcessor(
+            self.file_rw, should_read=True, logger=self.mock_logger
+        )
+        processor2.run(items=["a", "b", "c", "d"], delay=0)
+        calls = [
+            call("Skipped 3 already processed items."),
+            call("Finished processing all items. 4 / 4 items processed."),
         ]
         self.mock_logger.info.assert_has_calls(calls, any_order=True)
 
