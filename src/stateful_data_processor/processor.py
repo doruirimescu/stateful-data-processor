@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from logging import Logger, getLogger
+import os
 import signal
 from stateful_data_processor.file_rw import FileRW
 from typing import Optional, Any, Collection
@@ -59,6 +60,7 @@ class StatefulDataProcessor:
         # Setup the signal handler for graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
+        signal.signal(signal.SIGHUP, self._signal_handler)
 
     @abstractmethod
     def process_data(self, items: Collection[Any], *args, **kwargs):
@@ -121,7 +123,7 @@ class StatefulDataProcessor:
         self.logger.info("Interrupt signal received, saving data...")
         self.file_rw.write(self.data)
         self.logger.info("Data saved, exiting.")
-        exit(0)
+        os._exit(0)
 
     def run(self, items: Collection[Any], *args, **kwargs):
         """Main method to run the processor."""
