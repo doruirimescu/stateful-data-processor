@@ -255,6 +255,55 @@ if __name__ == "__main__":
 
 
 
+## Parallel processing
+
+`ParallelStatefulDataProcessor` is a drop-in parallel sibling. It distributes pending items across a thread pool, then writes the file once after all workers finish — or immediately on interrupt or exception, saving whatever partial state was accumulated.
+
+```python
+import time
+from stateful_data_processor.file_rw import JsonFileRW
+from stateful_data_processor.parallel_processor import ParallelStatefulDataProcessor
+
+class ApiProcessor(ParallelStatefulDataProcessor):
+    def process_item(self, item: str, iteration_index: int):
+        response = fetch_from_api(item)   # slow network call
+        self.data[item] = response
+
+file_rw = JsonFileRW("results.json")
+processor = ApiProcessor(file_rw, n_workers=8)
+processor.run(items=["AAPL", "MSFT", "GOOGL", ...])
+```
+
+All parameters from `StatefulDataProcessor` are supported: `verbose_skip`, `skip_list`, `should_reprocess`, `should_read`, signal handling, etc.
+
+### Ideal use cases
+
+- **I/O-bound workloads** — HTTP requests, database reads, file parsing, anything where the bottleneck is waiting rather than CPU. With 8 workers and 100 ms latency per item, throughput goes from 10 items/s to ~80 items/s.
+- **Resumable parallel jobs** — same restart semantics as the base class: already-processed items are skipped on the next run, regardless of which worker handled them.
+- **Mixed batches** — use `skip_list` or `should_read=True` to hand off a partially-complete dataset to the parallel processor and let it fill in only what is missing.
+
+### Limitations and caveats
+
+**Thread safety of `self.data`**
+Each `process_item` call writes to `self.data` directly (`self.data[item] = value`). This is safe in CPython because GIL-protected dict assignments on *distinct* keys do not race. It is not guaranteed to be safe on other Python runtimes (PyPy, Jython). Do not share state across items inside `process_item` without an explicit lock.
+
+**CPU-bound work gets no speedup**
+`ThreadPoolExecutor` uses OS threads, which are bound by the GIL for pure Python CPU work. For CPU-intensive `process_item` logic use `ProcessPoolExecutor` instead (or the standard `StatefulDataProcessor` with a multiprocessing wrapper). Threads shine for I/O-bound tasks where the GIL is released during I/O waits.
+
+**File written once at the end, not incrementally**
+Unlike the sequential processor (which also writes at the end), intermediate progress is *only* in memory. If the process is killed with `SIGKILL` or the machine loses power mid-run, in-progress results are lost. `SIGINT`, `SIGTERM`, and `SIGHUP` are handled — they flush `self.data` to disk before exiting.
+
+**String keys in `JsonFileRW`**
+JSON serialises all dict keys as strings. If you use non-string items (e.g. integers) and restart a run with `should_read=True`, the keys read back from disk will be strings while new results will have their original type, producing a mixed-key dict that `json.dump(sort_keys=True)` cannot sort. Use string items when resumability matters.
+
+**First exception wins**
+If multiple workers raise, only the first exception (as determined by `as_completed` ordering) is propagated. The others are silently discarded. Completed results are still saved.
+
+**`print_interval` is ignored**
+Workers finish in unpredictable order, so sequential progress indices (`1 / N`, `2 / N`, …) are meaningless. Each completion logs `"Processed item {item}"` instead.
+
+---
+
 ## Releasing
 
 ``` bash
