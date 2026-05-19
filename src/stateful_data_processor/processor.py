@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from logging import Logger, getLogger
-import os
 import signal
+import sys
 from stateful_data_processor.file_rw import FileRW
 from typing import Optional, Any, Collection
 
@@ -123,7 +123,7 @@ class StatefulDataProcessor:
         self.logger.info("Interrupt signal received, saving data...")
         self.file_rw.write(self.data)
         self.logger.info("Data saved, exiting.")
-        os._exit(0)
+        sys.exit(0)
 
     def run(self, items: Collection[Any], *args, **kwargs):
         """Main method to run the processor."""
