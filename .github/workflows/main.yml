@@ -88,8 +88,10 @@ jobs:
       - name: Determine bump type from commit message
         id: bump
         shell: bash
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
-          msg="${{ github.event.head_commit.message }}"
+          msg="$COMMIT_MSG"
           shopt -s nocasematch
           if [[ "$msg" =~ ^MAJOR:|[[:space:]]MAJOR: ]]; then
             echo "level=major" >> $GITHUB_OUTPUT
